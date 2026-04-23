@@ -1,0 +1,167 @@
+{% extends "public/base.html" %}
+
+{% block title %}{{ league.name }} | Dart Liga{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{{ league.name }}</h2>
+    <p><strong>Saison:</strong> {{ league.season.name }}</p>
+    <p><strong>Ligastufe:</strong> {{ league.tier.name }}</p>
+    <p><strong>Max. Spieler:</strong> {{ league.max_players }}</p>
+    <p>
+        <a href="{% url 'league_specials' league.id %}">Zu den Specials dieser Liga</a>
+    </p>
+</div>
+
+<div class="card">
+    <h2>Rangliste</h2>
+
+    {% if ranking %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Platz</th>
+                    <th>Spieler</th>
+                    <th>Spiele</th>
+                    <th>Siege</th>
+                    <th>Niederlagen</th>
+                    <th>Matchdiff</th>
+                    <th>Punkte</th>
+                    <th>Legs</th>
+                    <th>Legdiff</th>
+                    <th>180er</th>
+                    <th>Best HF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in ranking %}
+                    <tr
+                        {% if forloop.counter <= 2 %}
+                            style="background-color: #d4edda;"
+                        {% elif forloop.counter > ranking|length|add:"-2" %}
+                            style="background-color: #f8d7da;"
+                        {% endif %}
+                    >
+                        <td>{{ row.position }}</td>
+                        <td>{{ row.player.display_name }}</td>
+                        <td>{{ row.matches }}</td>
+                        <td>{{ row.wins }}</td>
+                        <td>{{ row.losses }}</td>
+                        <td>
+                            {% if row.match_diff > 0 %}
+                                +{{ row.match_diff }}
+                            {% else %}
+                                {{ row.match_diff }}
+                            {% endif %}
+                        </td>
+                        <td>{{ row.points }}</td>
+                        <td>{{ row.legs_for }} : {{ row.legs_against }}</td>
+                        <td>{% if row.leg_diff > 0 %}
+                                +{{ row.leg_diff }}
+                            {% else %}
+                                {{ row.leg_diff }}
+                            {% endif %}</td>
+                        <td>{{ row.count_180 }}</td>
+                        <td>
+                            {% if row.best_highfinish > 0 %}
+                                {{ row.best_highfinish }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine Rangliste verfügbar.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Spieler</h2>
+
+    {% if league_players %}
+        <ul>
+            {% for entry in league_players %}
+                <li>{{ entry.player.display_name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Keine Spieler in dieser Liga.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Spieltage und Ergebnisse</h2>
+
+    {% if matchdays %}
+        {% for matchday in matchdays %}
+            <br><br>
+            <h3>
+                Spieltag {{ matchday.number }}
+                {% if matchday.date %}
+                    – {{ matchday.date }}
+                {% endif %}
+            </h3>
+
+            {% if matchday.matches.all %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Spieler 1</th>
+                            <th style="width: 10%;">Ergebnis</th>
+                            <th style="width: 18%;">Spieler 2</th>
+                            <th style="width: 18%;">Gewinner</th>
+                            <th style="width: 18%;">180er</th>
+                            <th style="width: 18%;">Highfinishes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in matchday.matches.all %}
+                            <tr>
+                                <td>{{ match.player1 }}</td>
+                                <td>{{ match.player1_legs }} : {{ match.player2_legs }}</td>
+                                <td>{{ match.player2 }}</td>
+                                <td>
+                                    {% if match.winner %}
+                                        {{ match.winner }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if match.has_180 %}
+                                        {% for special in match.specials.all %}
+                                            {% if special.special_type == "180" %}
+                                                {{ special.player.display_name }}: {{ special.value }}<br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if match.has_highfinish %}
+                                        {% for special in match.specials.all %}
+                                            {% if special.special_type == "highfinish" %}
+                                                {{ special.player.display_name }}: {{ special.value }}<br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Keine Spiele vorhanden.</p>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <p>Keine Spieltage vorhanden.</p>
+    {% endif %}
+</div>
+{% endblock %}

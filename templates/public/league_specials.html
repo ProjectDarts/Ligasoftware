@@ -1,0 +1,69 @@
+{% extends "public/base.html" %}
+
+{% block title %}Specials | {{ league.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Specials – {{ league.name }}</h2>
+    <p><strong>Saison:</strong> {{ league.season.name }}</p>
+    <p><strong>Ligastufe:</strong> {{ league.tier.name }}</p>
+</div>
+
+<div class="card">
+    <h2>Alle 180er</h2>
+
+    {% if specials_180 %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Spieltag</th>
+                    <th>Spieler</th>
+                    <th>Match</th>
+                    <th>Wert</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in specials_180 %}
+                    <tr>
+                        <td>{{ item.matchday.number }}</td>
+                        <td>{{ item.player.display_name }}</td>
+                        <td>{{ item.match.player1 }} vs. {{ item.match.player2 }}</td>
+                        <td>{{ item.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine 180er vorhanden.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Alle Highfinishes</h2>
+
+    {% if highfinishes %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Spieltag</th>
+                    <th>Spieler</th>
+                    <th>Match</th>
+                    <th>Highfinish</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in highfinishes %}
+                    <tr>
+                        <td>{{ item.matchday.number }}</td>
+                        <td>{{ item.player.display_name }}</td>
+                        <td>{{ item.match.player1 }} vs. {{ item.match.player2 }}</td>
+                        <td>{{ item.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine Highfinishes vorhanden.</p>
+    {% endif %}
+</div>
+{% endblock %}

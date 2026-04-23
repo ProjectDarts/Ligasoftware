@@ -1,0 +1,38 @@
+{% extends "public/base.html" %}
+
+{% block title %}Ligen | Dart Liga{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Alle Ligen</h2>
+
+    {% if leagues %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Stufe</th>
+                    <th>Saison</th>
+                    <th>Max. Spieler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for league in leagues %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'league_detail' league.id %}">
+                                {{ league.name }}
+                            </a>
+                        </td>
+                        <td>{{ league.tier.name }}</td>
+                        <td>{{ league.season.name }}</td>
+                        <td>{{ league.max_players }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine Ligen gefunden.</p>
+    {% endif %}
+</div>
+{% endblock %}
