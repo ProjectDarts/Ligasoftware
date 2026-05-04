@@ -19,8 +19,11 @@ admin.site.site_header = "Ligasoftware Admin"
 admin.site.site_title = "Ligasoftware"
 admin.site.index_title = "Willkommen zur Ligasoftware"
 from django.urls import path, include
+from django.views.generic import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("public.urls")),
+    path("favicon.ico", RedirectView.as_view(url=staticfiles_storage.url("favicon.ico"))),
 ]

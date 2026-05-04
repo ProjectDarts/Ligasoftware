@@ -35,21 +35,18 @@ class MatchAdminForm(forms.ModelForm):
         league = None
         matchday = None
 
-        # Beim Bearbeiten bestehender Spiele
         if self.instance and self.instance.pk:
             if self.instance.matchday_id:
                 matchday = self.instance.matchday
                 league = matchday.league
                 self.fields["league"].initial = league
 
-        # Liga aus POST
         elif self.data.get("league"):
             try:
                 league = League.objects.get(pk=int(self.data.get("league")))
             except (ValueError, TypeError, League.DoesNotExist):
                 league = None
 
-        # Liga aus URL
         elif self.request and self.request.GET.get("league"):
             try:
                 league = League.objects.get(pk=int(self.request.GET.get("league")))
@@ -57,7 +54,6 @@ class MatchAdminForm(forms.ModelForm):
             except (ValueError, TypeError, League.DoesNotExist):
                 league = None
 
-        # Matchday aus POST
         if self.data.get("matchday"):
             try:
                 matchday = Matchday.objects.get(pk=int(self.data.get("matchday")))
@@ -78,8 +74,6 @@ class MatchAdminForm(forms.ModelForm):
                 league.league_players.values_list("player_id", flat=True)
             )
 
-            # Wenn ein Spieltag gewählt ist:
-            # alle Spieler rausfiltern, die dort schon gespielt haben
             if matchday:
                 used_player_ids = set()
 
@@ -93,12 +87,14 @@ class MatchAdminForm(forms.ModelForm):
 
                 player_ids = player_ids - used_player_ids
 
-                # Beim Bearbeiten aktuelles Spielerpaar trotzdem wieder erlauben
                 if self.instance and self.instance.pk:
                     player_ids.add(self.instance.player1_id)
                     player_ids.add(self.instance.player2_id)
 
-            player_qs = Player.objects.filter(id__in=player_ids).order_by("display_name")
+            player_qs = Player.objects.filter(
+                id__in=player_ids,
+                is_blocked=False
+            ).order_by("display_name")
 
             self.fields["player1"].queryset = player_qs
             self.fields["player2"].queryset = player_qs
@@ -133,7 +129,12 @@ class MatchAdminForm(forms.ModelForm):
         if player2 and player2.id not in allowed_player_ids:
             raise ValidationError("Spieler 2 gehört nicht zur gewählten Liga.")
 
-        # Prüfung: an diesem Spieltag darf kein Spieler zweimal spielen
+        if player1 and player1.is_blocked:
+            raise ValidationError("Spieler 1 ist gesperrt und kann nicht ausgewählt werden.")
+
+        if player2 and player2.is_blocked:
+            raise ValidationError("Spieler 2 ist gesperrt und kann nicht ausgewählt werden.")
+
         existing_matches = Match.objects.filter(matchday=matchday)
         if self.instance and self.instance.pk:
             existing_matches = existing_matches.exclude(pk=self.instance.pk)

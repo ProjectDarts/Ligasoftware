@@ -72,7 +72,14 @@ class Match(models.Model):
         if self.winner and self.winner not in [self.player1, self.player2]:
             raise ValidationError("Der Gewinner muss Spieler 1 oder Spieler 2 sein.")
 
-        # Neu: ein Spieler darf pro Spieltag nur einmal spielen
+        # 🔴 NEU: gesperrte Spieler dürfen nicht spielen
+        if self.player1 and self.player1.is_blocked:
+            raise ValidationError("Spieler 1 ist gesperrt und kann nicht eingesetzt werden.")
+
+        if self.player2 and self.player2.is_blocked:
+            raise ValidationError("Spieler 2 ist gesperrt und kann nicht eingesetzt werden.")
+
+        # Ein Spieler darf pro Spieltag nur einmal spielen
         existing_matches = Match.objects.filter(matchday=self.matchday).exclude(pk=self.pk)
 
         used_player_ids = set()
@@ -87,6 +94,7 @@ class Match(models.Model):
             raise ValidationError("Spieler 2 hat an diesem Spieltag bereits ein Spiel.")
 
     def save(self, *args, **kwargs):
+        # Gewinner automatisch setzen
         if self.player1_legs > self.player2_legs:
             self.winner = self.player1
         elif self.player2_legs > self.player1_legs:
@@ -94,8 +102,12 @@ class Match(models.Model):
         else:
             self.winner = None
 
+        # Match als beendet markieren, sobald Legs eingetragen sind
         self.is_finished = (self.player1_legs + self.player2_legs) > 0
+
+        # Validierung ausführen
         self.full_clean()
+
         super().save(*args, **kwargs)
 
 
@@ -130,6 +142,10 @@ class MatchSpecial(models.Model):
     def clean(self):
         if self.player not in [self.match.player1, self.match.player2]:
             raise ValidationError("Der Spieler muss an diesem Match beteiligt sein.")
+
+        # 🔴 Optional (sehr sinnvoll): gesperrte Spieler auch hier blockieren
+        if self.player and self.player.is_blocked:
+            raise ValidationError("Gesperrte Spieler können keine Specials eintragen.")
 
         if self.special_type == self.SpecialType.MAX_180 and self.value < 1:
             raise ValidationError("Für den Typ 180 muss die Anzahl mindestens 1 sein.")

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -66,3 +67,7 @@ class LeaguePlayer(models.Model):
 
     def __str__(self):
         return f"{self.player} in {self.league}"
+
+    def clean(self):
+        if self.player and self.player.is_blocked:
+            raise ValidationError("Gesperrte Spieler können keiner Liga zugewiesen werden.")

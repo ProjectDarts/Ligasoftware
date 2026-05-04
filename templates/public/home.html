@@ -1,27 +1,31 @@
 {% extends "public/base.html" %}
 
-{% block title %}Start | Dart Liga{% endblock %}
+{% block title %}Start | Ligasoftware{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Willkommen</h2>
-    <p>Hier findest du alle öffentlichen Ligen, Spieler und Ergebnisse.</p>
+<div class="hero-card">
+    <div>
+        <h2>Willkommen zur Dart Liga</h2>
+        <p>Alle Ligen, Tabellen, Ergebnisse, 180er und Highfinishes auf einen Blick.</p>
+    </div>
 </div>
 
 <div class="card">
     <h2>Öffentliche Ligen</h2>
 
     {% if leagues %}
-        <ul>
+        <div class="league-grid">
             {% for league in leagues %}
-                <li>
-                    <a href="{% url 'league_detail' league.id %}">
-                        {{ league.name }}
-                    </a>
-                    – {{ league.tier.name }} / {{ league.season.name }}
-                </li>
+                <a class="league-card" href="{% url 'league_detail' league.id %}">
+                    <div class="league-icon">🎯</div>
+                    <div class="league-info">
+                        <h3>{{ league.name }}</h3>
+                        <p>{{ league.tier.name }}</p>
+                        <span>{{ league.season.name }}</span>
+                    </div>
+                </a>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
         <p>Es sind noch keine Ligen vorhanden.</p>
     {% endif %}

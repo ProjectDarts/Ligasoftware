@@ -37,9 +37,9 @@
                 {% for row in ranking %}
                     <tr
                         {% if forloop.counter <= 2 %}
-                            style="background-color: #d4edda;"
+                            class="rank-top"
                         {% elif forloop.counter > ranking|length|add:"-2" %}
-                            style="background-color: #f8d7da;"
+                            class="rank-bottom"
                         {% endif %}
                     >
                         <td>{{ row.position }}</td>
@@ -82,11 +82,22 @@
     <h2>Spieler</h2>
 
     {% if league_players %}
-        <ul>
-            {% for entry in league_players %}
-                <li>{{ entry.player.display_name }}</li>
-            {% endfor %}
-        </ul>
+        <table class="player-table">
+            <thead>
+                <tr>
+                    <th>Discord Name</th>
+                    <th>Autodarts Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in league_players %}
+                    <tr>
+                        <td>{{ entry.player.discord_name }}</td>
+                        <td>{{ entry.player.autodarts_name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         <p>Keine Spieler in dieser Liga.</p>
     {% endif %}

@@ -2,20 +2,29 @@ from django.db import models
 
 
 class Player(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    discord_name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="Discord Name"
+    )
+    autodarts_name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="Autodarts Name"
+    )
     display_name = models.CharField(max_length=150, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name="Spieler aktiv")
+    is_blocked = models.BooleanField(default=False, verbose_name="Spieler gesperrt")
 
     class Meta:
-        ordering = ["last_name", "first_name"]
+        ordering = ["display_name"]
+        verbose_name = "Spieler"
+        verbose_name_plural = "Spieler"
 
     def __str__(self):
-        if self.display_name:
-            return self.display_name
-        return f"{self.first_name} {self.last_name}"
+        return self.display_name or f"{self.discord_name} / {self.autodarts_name}"
 
     def save(self, *args, **kwargs):
         if not self.display_name:
-            self.display_name = f"{self.first_name} {self.last_name}"
+            self.display_name = f"{self.discord_name} / {self.autodarts_name}"
         super().save(*args, **kwargs)
