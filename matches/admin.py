@@ -24,6 +24,8 @@ class MatchAdmin(admin.ModelAdmin):
         "player1_legs",
         "player2_legs",
         "winner",
+        "player1_avg_total",
+        "player2_avg_total",
         "is_finished",
     )
     list_filter = (
@@ -35,6 +37,34 @@ class MatchAdmin(admin.ModelAdmin):
         "player1__display_name",
         "player2__display_name",
         "matchday__league__name",
+    )
+    fieldsets = (
+        (None, {
+            "fields": (
+                "league",
+                "matchday",
+                "player1",
+                "player2",
+                "player1_legs",
+                "player2_legs",
+            )
+        }),
+        ("Autodarts-Statistiken Spieler 1", {
+            "fields": (
+                "player1_avg_total",
+                "player1_avg_first9",
+                "player1_avg_to_170",
+                "player1_checkout_percent",
+            )
+        }),
+        ("Autodarts-Statistiken Spieler 2", {
+            "fields": (
+                "player2_avg_total",
+                "player2_avg_first9",
+                "player2_avg_to_170",
+                "player2_checkout_percent",
+            )
+        }),
     )
     inlines = [MatchSpecialInline]
 

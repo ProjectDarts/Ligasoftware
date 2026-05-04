@@ -120,12 +120,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 18%;">Spieler 1</th>
-                            <th style="width: 10%;">Ergebnis</th>
-                            <th style="width: 18%;">Spieler 2</th>
-                            <th style="width: 18%;">Gewinner</th>
-                            <th style="width: 18%;">180er</th>
-                            <th style="width: 18%;">Highfinishes</th>
+                            <th style="width: 15%;">Spieler 1</th>
+                            <th style="width: 8%;">Ergebnis</th>
+                            <th style="width: 15%;">Spieler 2</th>
+                            <th style="width: 14%;">Gewinner</th>
+                            <th style="width: 16%;">Autodarts Spieler 1</th>
+                            <th style="width: 16%;">Autodarts Spieler 2</th>
+                            <th style="width: 8%;">180er</th>
+                            <th style="width: 8%;">Highfinishes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,6 +139,26 @@
                                 <td>
                                     {% if match.winner %}
                                         {{ match.winner }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if match.player1_avg_total != None or match.player1_avg_first9 != None or match.player1_avg_to_170 != None or match.player1_checkout_percent != None %}
+                                        Gesamt AVG: {{ match.player1_avg_total|default_if_none:"-" }}<br>
+                                        First 9 AVG: {{ match.player1_avg_first9|default_if_none:"-" }}<br>
+                                        AVG to 170: {{ match.player1_avg_to_170|default_if_none:"-" }}<br>
+                                        Checkquote: {% if match.player1_checkout_percent != None %}{{ match.player1_checkout_percent }} %{% else %}-{% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if match.player2_avg_total != None or match.player2_avg_first9 != None or match.player2_avg_to_170 != None or match.player2_checkout_percent != None %}
+                                        Gesamt AVG: {{ match.player2_avg_total|default_if_none:"-" }}<br>
+                                        First 9 AVG: {{ match.player2_avg_first9|default_if_none:"-" }}<br>
+                                        AVG to 170: {{ match.player2_avg_to_170|default_if_none:"-" }}<br>
+                                        Checkquote: {% if match.player2_checkout_percent != None %}{{ match.player2_checkout_percent }} %{% else %}-{% endif %}
                                     {% else %}
                                         -
                                     {% endif %}

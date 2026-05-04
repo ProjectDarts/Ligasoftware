@@ -46,6 +46,63 @@ class Match(models.Model):
     )
     is_finished = models.BooleanField(default=False)
 
+    player1_avg_total = models.DecimalField(
+        "Spieler 1 Gesamt AVG",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player1_avg_first9 = models.DecimalField(
+        "Spieler 1 First 9 AVG",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player1_avg_to_170 = models.DecimalField(
+        "Spieler 1 AVG to 170",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player1_checkout_percent = models.DecimalField(
+        "Spieler 1 Checkquote %",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player2_avg_total = models.DecimalField(
+        "Spieler 2 Gesamt AVG",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player2_avg_first9 = models.DecimalField(
+        "Spieler 2 First 9 AVG",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player2_avg_to_170 = models.DecimalField(
+        "Spieler 2 AVG to 170",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    player2_checkout_percent = models.DecimalField(
+        "Spieler 2 Checkquote %",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+
     class Meta:
         ordering = ["matchday", "id"]
         verbose_name = "Spiel"

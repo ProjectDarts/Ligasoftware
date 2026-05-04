@@ -22,6 +22,14 @@ class MatchAdminForm(forms.ModelForm):
             "player2",
             "player1_legs",
             "player2_legs",
+            "player1_avg_total",
+            "player1_avg_first9",
+            "player1_avg_to_170",
+            "player1_checkout_percent",
+            "player2_avg_total",
+            "player2_avg_first9",
+            "player2_avg_to_170",
+            "player2_checkout_percent",
         ]
 
     def __init__(self, *args, **kwargs):
