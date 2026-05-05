@@ -46,63 +46,6 @@ class Match(models.Model):
     )
     is_finished = models.BooleanField(default=False)
 
-    player1_avg_total = models.DecimalField(
-        "Spieler 1 Gesamt AVG",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player1_avg_first9 = models.DecimalField(
-        "Spieler 1 First 9 AVG",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player1_avg_to_170 = models.DecimalField(
-        "Spieler 1 AVG to 170",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player1_checkout_percent = models.DecimalField(
-        "Spieler 1 Checkquote %",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player2_avg_total = models.DecimalField(
-        "Spieler 2 Gesamt AVG",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player2_avg_first9 = models.DecimalField(
-        "Spieler 2 First 9 AVG",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player2_avg_to_170 = models.DecimalField(
-        "Spieler 2 AVG to 170",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-    player2_checkout_percent = models.DecimalField(
-        "Spieler 2 Checkquote %",
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-    )
-
     class Meta:
         ordering = ["matchday", "id"]
         verbose_name = "Spiel"
@@ -166,6 +109,86 @@ class Match(models.Model):
         self.full_clean()
 
         super().save(*args, **kwargs)
+
+
+class MatchPlayerStat(models.Model):
+    match = models.ForeignKey(
+        Match,
+        on_delete=models.CASCADE,
+        related_name="player_stats"
+    )
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.CASCADE,
+        related_name="match_stats"
+    )
+    avg_total = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="AVG gesamt"
+    )
+    avg_first9 = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="First 9 AVG"
+    )
+    avg_to_170 = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="AVG to 170"
+    )
+    checkout_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Checkquote %"
+    )
+    throws_60_plus = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="60+"
+    )
+    throws_100_plus = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="100+"
+    )
+    throws_140_plus = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="140+"
+    )
+    throws_170_plus = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="170+"
+    )
+    throws_180 = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="180"
+    )
+
+    class Meta:
+        ordering = ["match", "player__display_name"]
+        unique_together = ["match", "player"]
+        verbose_name = "Spieler-Statistik"
+        verbose_name_plural = "Spieler-Statistiken"
+
+    def __str__(self):
+        return f"{self.match} - {self.player}"
+
+    def clean(self):
+        if self.match_id and self.player_id:
+            if self.player not in [self.match.player1, self.match.player2]:
+                raise ValidationError("Der Spieler muss an diesem Match beteiligt sein.")
 
 
 class MatchSpecial(models.Model):

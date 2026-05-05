@@ -1,0 +1,166 @@
+{% extends "public/base.html" %}
+
+{% block title %}Spielerdetails | {{ player.display_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Spielerdetails</h2>
+    <p><strong>Discord Name:</strong> {{ player.discord_name }}</p>
+    <p><strong>Autodarts Name:</strong> {{ player.autodarts_name }}</p>
+</div>
+
+<div class="card">
+    <h2>Durchschnittswerte</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>AVG gesamt</th>
+                <th>First 9 AVG</th>
+                <th>AVG to 170</th>
+                <th>Checkquote %</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{% if summary.avg_total != None %}{{ summary.avg_total|floatformat:2 }}{% else %}-{% endif %}</td>
+                <td>{% if summary.avg_first9 != None %}{{ summary.avg_first9|floatformat:2 }}{% else %}-{% endif %}</td>
+                <td>{% if summary.avg_to_170 != None %}{{ summary.avg_to_170|floatformat:2 }}{% else %}-{% endif %}</td>
+                <td>{% if summary.checkout_percent != None %}{{ summary.checkout_percent|floatformat:2 }}{% else %}-{% endif %}</td>
+                <td> </td>
+            </tr>
+        </tbody>
+    </table>
+    <h2></h2>    
+    <h2>Higscores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>60+</th>
+                <th>100+</th>
+                <th>140+</th>
+                <th>170+</th>
+                <th>180</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ summary.throws_60_plus }}</td>
+                <td>{{ summary.throws_100_plus }}</td>
+                <td>{{ summary.throws_140_plus }}</td>
+                <td>{{ summary.throws_170_plus }}</td>
+                <td>{{ summary.throws_180 }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Spiele mit Autodarts-Werten</h2>
+    {% if stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Liga</th>
+                    <th>Spieltag</th>
+                    <th>Spiel</th>
+                    <th>AVG gesamt</th>
+                    <th>First 9 AVG</th>
+                    <th>AVG to 170</th>
+                    <th>Checkquote %</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                    <tr>
+                        <td>{{ stat.match.matchday.league.name }}</td>
+                        <td>{{ stat.match.matchday.number }}</td>
+                        <td>{{ stat.match.player1 }} vs. {{ stat.match.player2 }}</td>
+                        <td>{% if stat.avg_total != None %}{{ stat.avg_total }}{% else %}-{% endif %}</td>
+                        <td>{% if stat.avg_first9 != None %}{{ stat.avg_first9 }}{% else %}-{% endif %}</td>
+                        <td>{% if stat.avg_to_170 != None %}{{ stat.avg_to_170 }}{% else %}-{% endif %}</td>
+                        <td>{% if stat.checkout_percent != None %}{{ stat.checkout_percent }}{% else %}-{% endif %}</td>
+                        <td><a href="{% url 'match_detail' stat.match.id %}">Spieldetails</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Für diesen Spieler sind noch keine Autodarts-Werte eingetragen.</p>
+    {% endif %}
+</div>
+<div class="card">
+    <h2>Verlauf AVG pro Spieltag</h2>
+
+    {% if avg_chart_points %}
+        <canvas id="avgChart" height="100"></canvas>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const avgLabels = [
+                {% for point in avg_chart_points %}
+                    "ST {{ point.matchday }}",
+                {% endfor %}
+            ];
+
+            const avgTotalData = [
+                {% for point in avg_chart_points %}
+                    {{ point.avg_total|stringformat:".2f" }},
+                {% endfor %}
+            ];
+
+            const avgFirst9Data = [
+                {% for point in avg_chart_points %}
+                    {{ point.avg_first9|stringformat:".2f" }},
+                {% endfor %}
+            ];
+
+            const avgTo170Data = [
+                {% for point in avg_chart_points %}
+                    {{ point.avg_to_170|stringformat:".2f" }},
+                {% endfor %}
+            ];
+
+            new Chart(document.getElementById("avgChart"), {
+                type: "line",
+                data: {
+                    labels: avgLabels,
+                    datasets: [
+                        {
+                            label: "Gesamt-AVG",
+                            data: avgTotalData,
+                            tension: 0.3
+                        },
+                        {
+                            label: "First 9 AVG",
+                            data: avgFirst9Data,
+                            tension: 0.3
+                        },
+                        {
+                            label: "AVG to 170",
+                            data: avgTo170Data,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+                    stacked: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+    {% else %}
+        <p>Noch keine AVG-Werte vorhanden.</p>
+    {% endif %}
+</div>
+{% endblock %}

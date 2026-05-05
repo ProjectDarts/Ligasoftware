@@ -1,0 +1,89 @@
+{% extends "public/base.html" %}
+
+{% block title %}Spieldetails | {{ match.player1 }} vs. {{ match.player2 }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Spieldetails</h2>
+    <p><strong>Liga:</strong> <a href="{% url 'league_detail' league.id %}">{{ league.name }}</a></p>
+    <p><strong>Spieltag:</strong> {{ match.matchday.number }}</p>
+    {% if match.matchday.date %}<p><strong>Datum:</strong> {{ match.matchday.date }}</p>{% endif %}
+    <p><strong>Spiel:</strong> {{ match.player1 }} vs. {{ match.player2 }}</p>
+    <p><strong>Ergebnis:</strong> {{ match.player1_legs }} : {{ match.player2_legs }}</p>
+    <p><strong>Gewinner:</strong> {% if match.winner %}{{ match.winner }}{% else %}-{% endif %}</p>
+</div>
+
+<div class="card">
+    <h2>Autodarts-Werte</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Spieler</th>
+                <th>AVG gesamt</th>
+                <th>First 9 AVG</th>
+                <th>AVG to 170</th>
+                <th>Checkquote %</th>
+                <th>60+</th>
+                <th>100+</th>
+                <th>140+</th>
+                <th>170+</th>
+                <th>180</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in player_rows %}
+                <tr>
+                    <td><a href="{% url 'player_detail' row.player.id %}">{{ row.player.display_name }}</a></td>
+                    {% if row.stat %}
+                        <td>{% if row.stat.avg_total != None %}{{ row.stat.avg_total }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.avg_first9 != None %}{{ row.stat.avg_first9 }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.avg_to_170 != None %}{{ row.stat.avg_to_170 }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.checkout_percent != None %}{{ row.stat.checkout_percent }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.throws_60_plus != None %}{{ row.stat.throws_60_plus }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.throws_100_plus != None %}{{ row.stat.throws_100_plus }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.throws_140_plus != None %}{{ row.stat.throws_140_plus }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.throws_170_plus != None %}{{ row.stat.throws_170_plus }}{% else %}-{% endif %}</td>
+                        <td>{% if row.stat.throws_180 != None %}{{ row.stat.throws_180 }}{% else %}-{% endif %}</td>
+                    {% else %}
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Specials</h2>
+    {% if specials %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Spieler</th>
+                    <th>Typ</th>
+                    <th>Wert</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for special in specials %}
+                    <tr>
+                        <td>{{ special.player.display_name }}</td>
+                        <td>{{ special.get_special_type_display }}</td>
+                        <td>{{ special.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine Specials eingetragen.</p>
+    {% endif %}
+</div>
+{% endblock %}
