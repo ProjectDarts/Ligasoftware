@@ -108,15 +108,53 @@ class MatchAdmin(admin.ModelAdmin):
         if formset.model == MatchPlayerStat:
             match = form.instance
             players = [match.player1, match.player2]
+            valid_player_ids = {player.id for player in players if player}
 
+            # Wichtig:
+            # formset.save(commit=False) liefert nur neue/geänderte Inline-Zeilen.
+            # Bei einem bestehenden Match mit bereits einer gespeicherten Statistik
+            # wurde eine neu nachgetragene zweite Statistik vorher wieder Spieler 1
+            # zugeordnet. Das führte bei (match, player) zu einem Unique-Constraint-Fehler
+            # und damit zu HTTP 500 im Admin.
             instances = formset.save(commit=False)
 
-            for index, instance in enumerate(instances):
-                if index < len(players):
-                    instance.player = players[index]
+            instance_pks = [instance.pk for instance in instances if instance.pk]
+            existing_player_by_pk = dict(
+                MatchPlayerStat.objects
+                .filter(match=match)
+                .values_list("pk", "player_id")
+            )
 
+            used_player_ids = set(
+                MatchPlayerStat.objects
+                .filter(match=match)
+                .exclude(pk__in=instance_pks)
+                .values_list("player_id", flat=True)
+            )
+
+            for instance in instances:
                 instance.match = match
+
+                # Bestehende Statistikzeilen behalten ihren Spieler.
+                # Das Hidden-Feld kann beim Nachbearbeiten leer/instabil sein;
+                # die DB ist hier die zuverlässige Quelle.
+                if instance.pk and instance.pk in existing_player_by_pk:
+                    instance.player_id = existing_player_by_pk[instance.pk]
+
+                # Neue oder ungültig zugeordnete Zeilen bekommen den noch fehlenden
+                # Spieler dieses Matches. So kann man Statistiken auch nachträglich
+                # einzeln ergänzen, ohne Duplikate zu erzeugen.
+                if not instance.player_id or instance.player_id not in valid_player_ids or instance.player_id in used_player_ids:
+                    missing_players = [
+                        player for player in players
+                        if player and player.id not in used_player_ids
+                    ]
+                    if missing_players:
+                        instance.player = missing_players[0]
+
                 instance.save()
+                if instance.player_id:
+                    used_player_ids.add(instance.player_id)
 
             for deleted_object in formset.deleted_objects:
                 deleted_object.delete()

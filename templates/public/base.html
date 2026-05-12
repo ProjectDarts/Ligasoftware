@@ -240,6 +240,148 @@
         body.dark-mode .league-info span {
             color: #b8c7d9;
         }
+
+        .checkout-chart-wrap {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+
+        .checkout-chart {
+            width: 100%;
+            min-width: 620px;
+            height: auto;
+            display: block;
+        }
+
+        .chart-bg {
+            fill: #fafafa;
+            stroke: #ddd;
+        }
+
+        body.dark-mode .chart-bg {
+            fill: #181818;
+            stroke: #444;
+        }
+
+        .chart-grid {
+            stroke: #e3e3e3;
+            stroke-width: 1;
+        }
+
+        body.dark-mode .chart-grid {
+            stroke: #333;
+        }
+
+        .chart-axis {
+            stroke: #999;
+            stroke-width: 1.4;
+        }
+
+        .chart-axis-label,
+        .chart-x-label {
+            fill: #666;
+            font-size: 13px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 600;
+            paint-order: stroke;
+            stroke: #fafafa;
+            stroke-width: 3px;
+            stroke-linejoin: round;
+        }
+
+        body.dark-mode .chart-axis-label,
+        body.dark-mode .chart-x-label {
+            fill: #d7e6ff;
+            stroke: #181818;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-line-raw {
+            stroke: #888;
+            stroke-dasharray: 8 6;
+        }
+
+        .chart-line-trend {
+            stroke: #005bbb;
+        }
+
+        body.dark-mode .chart-line-trend {
+            stroke: #7db7ff;
+        }
+
+        .chart-point-raw {
+            fill: rgba(120, 120, 120, 0.35);
+            stroke: #555;
+            stroke-width: 1.4;
+        }
+
+        .chart-point-trend {
+            fill: #005bbb;
+            stroke: white;
+            stroke-width: 1.5;
+        }
+
+        body.dark-mode .chart-point-trend {
+            fill: #7db7ff;
+            stroke: #1e1e1e;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+            margin: 10px 0 6px 0;
+            font-size: 13px;
+            color: #555;
+        }
+
+        body.dark-mode .chart-legend {
+            color: #cfcfcf;
+        }
+
+        .chart-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-line {
+            display: inline-block;
+            width: 26px;
+            height: 0;
+            border-top: 3px solid #005bbb;
+        }
+
+        .legend-raw {
+            border-top-color: #888;
+            border-top-style: dashed;
+        }
+
+        .legend-trend {
+            border-top-color: #005bbb;
+        }
+
+        body.dark-mode .legend-trend {
+            border-top-color: #7db7ff;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(120, 120, 120, 0.45);
+            border: 1px solid #555;
+            display: inline-block;
+        }
+
     </style>
 </head>
 <body>

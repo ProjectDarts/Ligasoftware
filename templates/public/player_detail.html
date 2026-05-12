@@ -17,7 +17,7 @@
                 <th>AVG gesamt</th>
                 <th>First 9 AVG</th>
                 <th>AVG to 170</th>
-                <th>Checkquote %</th>
+                <th>Checkquote % gewichtet</th>
                 <th> </th>
             </tr>
         </thead>
@@ -90,17 +90,23 @@
         <p>Für diesen Spieler sind noch keine Autodarts-Werte eingetragen.</p>
     {% endif %}
 </div>
+
+
+{% if avg_chart_points %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endif %}
+
+
 <div class="card">
     <h2>Verlauf AVG pro Spieltag</h2>
 
     {% if avg_chart_points %}
         <canvas id="avgChart" height="100"></canvas>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const avgLabels = [
                 {% for point in avg_chart_points %}
-                    "ST {{ point.matchday }}",
+                    "ST{{ point.matchday }}",
                 {% endfor %}
             ];
 
@@ -163,4 +169,83 @@
         <p>Noch keine AVG-Werte vorhanden.</p>
     {% endif %}
 </div>
+
+<div class="card">
+    <h2>Checkout-Trend pro Spieltag</h2>
+
+    {% if checkout_rows %}
+        <p>
+            Die gestrichelte Rohquote zeigt den tatsächlich eingetragenen Spieltagswert.
+            Die Trendquote zieht kleine Datenmengen in Richtung Basiswert zurück, damit z. B. 100% aus 1/1 die Kurve nicht verzerren.
+        </p>
+        <p>
+            <strong>Basis:</strong> {{ checkout_base_percent|floatformat:2 }}%
+            ({{ checkout_base_label }}, Gewichtung mit {{ checkout_prior_attempts }} virtuellen Versuchen)
+        </p>
+
+        {% if checkout_chart %}
+            <div class="checkout-chart-wrap">
+                <svg class="checkout-chart" viewBox="0 0 {{ checkout_chart.width }} {{ checkout_chart.height }}" role="img" aria-label="Checkout-Quote und gewichteter Checkout-Trend pro Spieltag">
+                    <rect x="0" y="0" width="{{ checkout_chart.width }}" height="{{ checkout_chart.height }}" rx="10" class="chart-bg"></rect>
+
+                    {% for line in checkout_chart.grid %}
+                        <line x1="{{ checkout_chart.plot_x }}" y1="{{ line.y }}" x2="{{ checkout_chart.plot_x2 }}" y2="{{ line.y }}" class="chart-grid"></line>
+                        <text x="{{ checkout_chart.y_label_x }}" y="{{ line.label_y }}" text-anchor="end" dominant-baseline="middle" class="chart-axis-label">{{ line.label_text }}</text>
+                    {% endfor %}
+
+                    <line x1="{{ checkout_chart.plot_x }}" y1="{{ checkout_chart.x_axis_y }}" x2="{{ checkout_chart.plot_x2 }}" y2="{{ checkout_chart.x_axis_y }}" class="chart-axis"></line>
+
+                    <polyline points="{{ checkout_chart.raw_points }}" class="chart-line chart-line-raw"></polyline>
+                    <polyline points="{{ checkout_chart.trend_points }}" class="chart-line chart-line-trend"></polyline>
+
+                    {% for row in checkout_rows %}
+                        <circle cx="{{ row.chart_x }}" cy="{{ row.raw_chart_y }}" r="{{ row.point_radius }}" class="chart-point-raw">
+                            <title>ST{{ row.matchday }}: Rohquote {{ row.raw_percent|floatformat:2 }}% · {{ row.successes }} / {% if row.attempts != None %}ca. {{ row.attempts }}{% else %}-{% endif %} · {{ row.reliability }}</title>
+                        </circle>
+                        <circle cx="{{ row.chart_x }}" cy="{{ row.trend_chart_y }}" r="4" class="chart-point-trend">
+                            <title>ST{{ row.matchday }}: gewichtete Trendquote {{ row.trend_percent|floatformat:2 }}%</title>
+                        </circle>
+                        <text x="{{ row.chart_x }}" y="{{ row.chart_label_y }}" text-anchor="middle" dominant-baseline="hanging" class="chart-x-label">{{ row.matchday_label }}</text>
+                    {% endfor %}
+                </svg>
+            </div>
+
+            <div class="chart-legend">
+                <span><i class="legend-line legend-raw"></i> Rohquote</span>
+                <span><i class="legend-line legend-trend"></i> gewichtete Trendquote</span>
+                <span><i class="legend-dot"></i> Punktgröße = geschätzte Datenbasis</span>
+            </div>
+        {% endif %}
+
+        <table style="margin-top: 16px;">
+            <thead>
+                <tr>
+                    <th>Spieltag</th>
+                    <th>Spiel</th>
+                    <th>Rohquote</th>
+                    <th>Checks / ca. Versuche</th>
+                    <th>Datenbasis</th>
+                    <th>Trendquote</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in checkout_rows %}
+                    <tr>
+                        <td>ST{{ row.matchday }}</td>
+                        <td>{{ row.match.player1 }} vs. {{ row.match.player2 }}</td>
+                        <td>{{ row.raw_percent|floatformat:2 }}%</td>
+                        <td>
+                            {{ row.successes }} / {% if row.attempts != None %}ca. {{ row.attempts }}{% else %}-{% endif %}
+                        </td>
+                        <td>{{ row.reliability }}</td>
+                        <td>{{ row.trend_percent|floatformat:2 }}%</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Noch keine Checkquoten vorhanden.</p>
+    {% endif %}
+</div>
+
 {% endblock %}
