@@ -1,13 +1,11 @@
 {% extends "public/base.html" %}
+{% load static %}
 
 {% block title %}Start | Ligasoftware{% endblock %}
 
 {% block content %}
 <div class="hero-card">
-    <div>
-        <h2>Willkommen zur Dart Liga</h2>
-        <p>Alle Ligen, Tabellen, Ergebnisse, 180er und Highfinishes auf einen Blick.</p>
-    </div>
+    <p>Alle Ligen, Tabellen, Ergebnisse, 180er und Highfinishes auf einen Blick.</p>
 </div>
 
 <div class="card">
@@ -17,7 +15,17 @@
         <div class="league-grid">
             {% for league in leagues %}
                 <a class="league-card" href="{% url 'league_detail' league.id %}">
-                    <div class="league-icon">🎯</div>
+                    <div class="league-icon">
+                        {% if league.tier.order == 1 %}
+                            <img src="{% static 'public/img/ddl_liga_1.png' %}" alt="DDL 1. Liga">
+                        {% elif league.tier.order == 2 %}
+                            <img src="{% static 'public/img/ddl_liga_2.png' %}" alt="DDL 2. Liga">
+                        {% elif league.tier.order == 3 %}
+                            <img src="{% static 'public/img/ddl_liga_3.png' %}" alt="DDL 3. Liga">
+                        {% else %}
+                            🎯
+                        {% endif %}
+                    </div>
                     <div class="league-info">
                         <h3>{{ league.name }}</h3>
                         <p>{{ league.tier.name }}</p>

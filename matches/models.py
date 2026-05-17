@@ -102,8 +102,11 @@ class Match(models.Model):
         else:
             self.winner = None
 
-        # Match als beendet markieren, sobald Legs eingetragen sind
-        self.is_finished = (self.player1_legs + self.player2_legs) > 0
+        # Match automatisch als beendet markieren, sobald Legs eingetragen sind.
+        # Bei 0:0 bleibt die manuelle Auswahl erhalten, damit ein Spiel
+        # z. B. bei Nichtantritt beider Spieler bewusst gewertet werden kann.
+        if (self.player1_legs + self.player2_legs) > 0:
+            self.is_finished = True
 
         # Validierung ausführen
         self.full_clean()

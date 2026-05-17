@@ -22,6 +22,7 @@ class MatchAdminForm(forms.ModelForm):
             "player2",
             "player1_legs",
             "player2_legs",
+            "is_finished",
         ]
 
     def __init__(self, *args, **kwargs):
